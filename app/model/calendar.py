@@ -65,13 +65,30 @@ class Day:
     def __init__(self, date_: date):
         self.date_: date = date_
         self.slots: dict[time, str | None] = {}
+        self._init_slots()
 
     def _init_slots(self):
-        self.slots = time(0, time)
-        time = 15
+        self.slots = {time(hour, minute): None for hour in range(24) for minute in range(0, 60, 15)}
 
     def add_event(self, event_id: str, start_at: time, end_at: time):
-        pass
+        slots_to_update = []
+        occupied = False
+
+        for slot in self.slots:
+            if start_at <= slot < end_at:
+                if self.slots[slot] is not None:
+                    occupied = True
+                slots_to_update.append(slot)
+
+        if occupied:
+            slot_not_available_error()
+        else:
+            for slot in slots_to_update:
+                self.slots[slot] = event_id
+
+
+
+
 
     def delete_event(self, event_id: str):
         deleted = False
@@ -104,7 +121,13 @@ class Calendar:
         self.events: dict[str, Event] = {}
 
     def add_event(self, title: str, description: str, date_: date, start_at_: time, end_at: time):
-        pass
+        if date_ < datetime.now().date():
+            date_lower_than_today_error()
+        else:
+            if date_ not in self.days:
+                self.days[date_] = Day(date_)
+
+        return id
 
     def add_reminder(self, event_id: str, date_time: datetime, type_: str):
         if event_id not in self.events:
